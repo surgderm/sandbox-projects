@@ -35,21 +35,31 @@ def draw_block(block, screen):
     # Module 3: Draw the current block on the screen
     pygame.draw.rect(screen, block.color, pygame.Rect(block.x * 25, block.y * 25, 25, 25))
 
-def handle_input(block, fast_fall):
+def handle_input(block, fast_fall, pause):
     # Module 4: Handle user input
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             return False
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
-                block.x -= 1 if block.direction in [(0, 1), (0, -1)] else 0
-                block.y -= 1 if block.direction in [(1, 0), (-1, 0)] else 0
-            elif event.key == pygame.K_RIGHT:
-                block.x += 1 if block.direction in [(0, 1), (0, -1)] else 0
-                block.y += 1 if block.direction in [(1, 0), (-1, 0)] else 0
-            elif event.key == pygame.K_SPACE:
-                fast_fall = True
-    return fast_fall
+            if event.key == pygame.K_p:
+                pause = not pause
+            if not pause: 
+                if event.key == pygame.K_LEFT:
+                    block.x -= 1 if block.direction in [(0, 1), (0, -1)] else 0
+                    block.y -= 1 if block.direction in [(1, 0), (-1, 0)] else 0
+                elif event.key == pygame.K_RIGHT:
+                    block.x += 1 if block.direction in [(0, 1), (0, -1)] else 0
+                    block.y += 1 if block.direction in [(1, 0), (-1, 0)] else 0
+                elif event.key == pygame.K_SPACE:
+                    fast_fall = True
+                elif event.key == pygame.K_q:
+                    pygame.quit()  # Quit the game if the "q" key is pressed
+                    return False
+
+    return fast_fall, pause
+
+
+
 
 def update_block_position(block, grid, fast_fall, SPEED):
     # Module 5: Update the block's position
@@ -87,14 +97,17 @@ def main():
 
     running = True
     fast_fall = False
+
+    pause = False
     while running:
-        fast_fall = handle_input(block, fast_fall)
-
-        screen.fill((0, 0, 0))
-        draw_grid(grid, screen)
-        draw_block(block, screen)
-
-        fast_fall, block = update_block_position(block, grid, fast_fall, SPEED)
+        fast_fall, pause = handle_input(block, fast_fall, pause)
+        
+        if not pause:
+            screen.fill((0, 0, 0))
+            draw_grid(grid, screen)
+            draw_block(block, screen)
+        
+            fast_fall, block = update_block_position(block, grid, fast_fall, SPEED)
 
         pygame.display.flip()
         clock.tick(60)
